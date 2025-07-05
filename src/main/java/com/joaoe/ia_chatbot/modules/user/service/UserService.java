@@ -1,6 +1,6 @@
 package com.joaoe.ia_chatbot.modules.user.service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.joaoe.ia_chatbot.modules.user.exception.EmailAlreadyExistsException;
-import com.joaoe.ia_chatbot.modules.user.exception.PasswordDoNotMacth;
+import com.joaoe.ia_chatbot.modules.user.exception.PasswordDoNotMatch;
 import com.joaoe.ia_chatbot.modules.user.exception.UsernameAlreadyExistsException;
 import com.joaoe.ia_chatbot.modules.user.exception.UsernameNotFound;
-import com.joaoe.ia_chatbot.modules.user.model.User;
+import com.joaoe.ia_chatbot.modules.user.model.UserAccount;
 import com.joaoe.ia_chatbot.modules.user.repository.UserRepository;
 
 import lombok.extern.slf4j.Slf4j;
@@ -32,7 +32,7 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(User user) {
+    public UserAccount createUser(UserAccount user) {
 
         if(existsByUsername(user.getUsername())){
             throw new UsernameAlreadyExistsException(user.getUsername());
@@ -42,7 +42,7 @@ public class UserService {
             throw new EmailAlreadyExistsException(user.getEmail());
         }
         user.setStatus("ACTIVE");
-        user.setCreateAt(LocalDateTime.now());
+        user.setCreateAt(Instant.now());
 
         // Crypt the pass
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -50,9 +50,9 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User login(String username, String pass){
-        User user = findByUsername(username).orElseThrow(
-            () -> new UsernameNotFound("User not found")
+    public UserAccount login(String username, String pass){
+        UserAccount user = findByUsername(username).orElseThrow(
+            () -> new UsernameNotFound("UserAccount not found")
         );
 
         if(!passwordEncoder.matches(pass, user.getPassword())){
@@ -62,14 +62,15 @@ public class UserService {
         return user;
     }
 
+    // Verify pass1 to pass2 to create a new user
     public boolean passwordsDoNotMatch(String pass1, String pass2){
         if(!pass1.equals(pass2)){
-            throw new PasswordDoNotMacth("Passwords do not match");
+            throw new PasswordDoNotMatch("Passwords do not match");
         }
         return true;
     }
 
-    public Optional<User> findByUsername(String username){
+    public Optional<UserAccount> findByUsername(String username){
         return userRepository.findByUsername(username);
     }
 

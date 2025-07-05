@@ -1,13 +1,15 @@
-package com.joaoe.ia_chatbot.modules.user.model;
+package com.joaoe.ia_chatbot.modules.ollama.model;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,13 +18,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "users")
+@Table(name = "ollama_history_chats")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class User {
+public class OllamaHistoryChat {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,24 +33,13 @@ public class User {
     @Column(nullable = false, columnDefinition = "uuid", insertable = false, updatable = false)
     private UUID uuid;
 
-    @Column(name = "email", unique = true)
-    private String email;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "company_config_id", nullable = false)
+    private OllamaCompanyConfig ollamaCompanyConfig;
 
-    @Column(name = "username", unique = true)
-    private String username;
+    @Column(name = "role")
+    private String role;
 
-    @Column(name = "password")
-    private String password;
-
-    @Column(name = "status")
-    private String status;
-
-    @Column(name = "deleted")
-    private boolean deleted;
-
-    @Column(name = "created_at")
-    private LocalDateTime createAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updateAt;
+    @Column(name = "content")
+    private String content;
 }
